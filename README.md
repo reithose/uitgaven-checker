@@ -1,6 +1,7 @@
 # Uitgaven checker
-PHP script genereert op basis van de ING Bank csv export en een JSON configuratie bestand een eenvoudig financieel overzicht.
+PHP script genereert op basis van de ING Bank csv export en een JSON configuratie bestand een eenvoudig financieel overzicht. Werkt zonder database en slaat geen gegevens op.
 
+Vanwege privacy redenen is het niet handig om dit script echt online te zetten. Gebruik een lokale server die niet verbonden is met het internet.
 
 ## Configuratie
 In het JSON bevat drie velden
