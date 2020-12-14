@@ -12,3 +12,5 @@ In het JSON bevat drie velden
 Als de waarde voorkomt in het veld van het CSV bestand, wordt het bedrag bij de post opgeteld of afgetrokken. Het is mogelijk om aan 1 post meerdere velden en waarden te hangen. De naam van de post wordt dan meerdere keren gebruikt.
 
 Je kan meerdere JSON bestanden aanmaken in de configs map om meerdere overzichten te maken. In de map configs staat een voorbeeld.
+
+**let op:** Kies bij het exporteren bij de ING Bank voor "Commagescheiden CSV". Anders werkt het niet.
