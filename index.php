@@ -104,8 +104,14 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
                   <td>".$key."</td>
                   <td>".$value."</td>
                 </tr>";
+
+                $totaal = $totaal + $value;
           }
   ?>
+        <tr>
+          <td><strong>totaal</strong></td>
+          <td><?php echo $totaal; ?></td>
+        </tr>
     </table>
     </div>
     <div class="col-lg-4">
