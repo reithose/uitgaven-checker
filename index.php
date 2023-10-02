@@ -96,55 +96,72 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
     <div class="row">
       <div class="col-lg-4">
         <table class='table table-hover'>
-          <tr>
-            <th>jaar</th>
-            <th>bedrag</th> 
-          </tr>
+          <thead>
+            <tr>
+              <th>jaar</th>
+              <th>bedrag</th> 
+            </tr>
+          </thead>
+          <tbody>
   <?php
           foreach ($jaarData as $key => $value) {
               echo"<tr>
                   <td>" . $key . "</td>
-                  <td>" . $value . "</td>
+                  <td>" . number_format($value, 2, ',', '.') . "</td>
                 </tr>";
 
               $totaal = $totaal + $value;
           }
 ?>
-        <tr>
-          <td><strong>totaal</strong></td>
-          <td><?php echo $totaal; ?></td>
-        </tr>
+          <tr>
+            <td><strong>totaal</strong></td>
+            <td><?php echo number_format($totaal, 2, ',', '.'); ?></td>
+          </tr>
+        </tbody>
     </table>
     </div>
     <div class="col-lg-4">
         <table class='table table-hover'>
+        <thead>
           <tr>
             <th>Config files</th>
           </tr>
+        </thead>
+        <tbody>
   <?php
-        foreach ($configFiles as $key => $value) {
-            echo"<tr>
+      foreach ($configFiles as $key => $value) {
+          echo"<tr>
                     <td><a href='index.php?config=" . $value . "'>" . substr($value, 0, -5) . "</a> <a href='configs/" . $value . "'>[view json]</a></td>
                 </tr>";
-        }
+      }
 ?>
-
+          </tbody>
         </table>
       </div>
       <div class="col-lg-4">
         <table class='table table-hover'>
-          <tr>
-            <th>Bron</th>
-          </tr>
+        <thead>
+            <tr>
+              <th>Bron</th>
+            </tr>
+        </thead>
+        <tbody>
           <tr>
             <td><a href='csv/ <?php echo $csvFile ?>'><?php echo $csvFile ?></a></td>
           </tr>
+        <tbody>
         </table>
       </div>
   </div>
   <div class='row'>
     <div class='col'>
+      <h2>Overzicht per maand</h2>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col'>
       <table class='table table-hover'>
+      <thead>
     		<tr>
     			<th>maand</th>
     <?php
@@ -153,7 +170,9 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
               }
 ?>
     		  <th>maand totaal</th>	
-    	</tr>
+    	  </tr>
+      </thead>
+      <tbody>
     	<tr>
     		<th>totaal</th>
     <?php
@@ -173,14 +192,14 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
       unset($rowTotal);
       foreach ($postenUniek as $puKey => $puValue) {
           $rowTotal = $rowTotal + $tableData[$key]["posten"][$postenUniek[$puKey]];
-          echo"<td>" . str_replace(".", ",", $tableData[$key]["posten"][$postenUniek[$puKey]]) . "</td>";
+          echo"<td>" . number_format($tableData[$key]["posten"][$postenUniek[$puKey]], 2, ',', '.') . "</td>";
       }
 
-      echo"<td>" . str_replace(".", ",", $rowTotal) . "</td>
+      echo"<td>" . number_format($rowTotal, 2, ',', '.') . "</td>
           </tr>";
   }
 ?>
-
+      </tbody>
     </table>
    </div>
    </div>
