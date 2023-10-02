@@ -1,78 +1,80 @@
 <?php
-error_reporting(E_ALL ^ E_NOTICE);
-include("parsecsv.lib.php");
+error_reporting(0);
+require_once __DIR__ . '/vendor/autoload.php';
 
-if($_GET["config"])
-  $configFile = $_GET["config"];
-else
-  $configFile = "config.json"; //default config file
+if($_GET["config"]) {
+    $configFile = $_GET["config"];
+} else {
+    $configFile = "config.json";
+} //default config file
 
-$posten = json_decode(file_get_contents("configs/".$configFile));
+$posten = json_decode(file_get_contents("configs/" . $configFile));
 $postenUniek = array();
 $postenTotalen = array();
 
 $configDir = opendir("configs");
 while($file = readdir($configDir)) {
-  if ($file != "." && $file != ".." && $file != ".DS_Store"){
-    $configFiles[] = $file;
-  }
+    if ($file != "." && $file != ".." && $file != ".DS_Store") {
+        $configFiles[] = $file;
+    }
 }
 
 
 $dir = opendir("csv");
 while($file = readdir($dir)) {
-  if ($file != "." && $file != ".." && $file != ".DS_Store" && substr($file, -3) == "csv"){
-    $csvFile = $file;
-  }
+    if ($file != "." && $file != ".." && $file != ".DS_Store" && substr($file, -3) == "csv") {
+        $csvFile = $file;
+    }
 }
-$csv = new parseCSV();
-$csv->parse("csv/".$csvFile);
+
+$csv = new \ParseCsv\Csv();
+$csv->parse("csv/" . $csvFile);
 
 
 
 //CSV data met posten uit config vergelijken en array opbouwen
-foreach ($csv->data as $cKey => $cValue) {  
-  foreach ($posten as $pKey => $pValue) {
-    if(strstr($csv->data[$cKey][$posten[$pKey]->veld], $posten[$pKey]->waarde)){
-      $result["maand"] = substr($csv->data[$cKey]["Datum"], 0, 4)."-".substr($csv->data[$cKey]["Datum"], 4, -2);
-      $result["post"] = $posten[$pKey]->post;
-      $result["bedrag"] = (double)str_replace(",", ".", $csv->data[$cKey]["Bedrag (EUR)"]);
-      $result["bijaf"] = $csv->data[$cKey]["Af Bij"];
-      $postData[] = $result;
+foreach ($csv->data as $cKey => $cValue) {
+    foreach ($posten as $pKey => $pValue) {
+        if(strstr($csv->data[$cKey][$posten[$pKey]->veld], $posten[$pKey]->waarde)) {
+            $result["maand"] = substr($csv->data[$cKey]["Datum"], 0, 4) . "-" . substr($csv->data[$cKey]["Datum"], 4, -2);
+            $result["post"] = $posten[$pKey]->post;
+            $result["bedrag"] = (float)str_replace(",", ".", $csv->data[$cKey]["Bedrag (EUR)"]);
+            $result["bijaf"] = $csv->data[$cKey]["Af Bij"];
+            $postData[] = $result;
+        }
     }
-  }
 }
 
-  
+
 //Totalen per maand en per post bepalen
 $currMaand = $postData[0]["maand"]; //Beginnen bij het begin
 
 foreach ($postData as $key => $value) {
 
-  $currJaar = substr($postData[$key]["maand"], 0, 4);
+    $currJaar = substr($postData[$key]["maand"], 0, 4);
 
-    if($postData[$key]["maand"] != $currMaand){
+    if($postData[$key]["maand"] != $currMaand) {
 
-    $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
-    $currMaand = $postData[$key]["maand"]; //Alles een maand opschuiven
-    unset($currPost);
-  }
+        $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
+        $currMaand = $postData[$key]["maand"]; //Alles een maand opschuiven
+        unset($currPost);
+    }
 
-  if($postData[$key]["bijaf"] == "Bij"){
-    $currPost[$postData[$key]["post"]] = $currPost[$postData[$key]["post"]] + $postData[$key]["bedrag"];
-    $postenTotalen[$postData[$key]["post"]] = $postenTotalen[$postData[$key]["post"]] + $postData[$key]["bedrag"];
-    $jaarData[$currJaar] = $jaarData[$currJaar] + $postData[$key]["bedrag"];
-  }
-  else{
-    $currPost[$postData[$key]["post"]] = $currPost[$postData[$key]["post"]] - $postData[$key]["bedrag"];  
-    $postenTotalen[$postData[$key]["post"]] = $postenTotalen[$postData[$key]["post"]] - $postData[$key]["bedrag"];  
-    $jaarData[$currJaar] = $jaarData[$currJaar] - $postData[$key]["bedrag"];
-  }
+    if($postData[$key]["bijaf"] == "Bij") {
+        $currPost[$postData[$key]["post"]] = $currPost[$postData[$key]["post"]] + $postData[$key]["bedrag"];
+        $postenTotalen[$postData[$key]["post"]] = $postenTotalen[$postData[$key]["post"]] + $postData[$key]["bedrag"];
+        $jaarData[$currJaar] = $jaarData[$currJaar] + $postData[$key]["bedrag"];
+    } else {
+        $currPost[$postData[$key]["post"]] = $currPost[$postData[$key]["post"]] - $postData[$key]["bedrag"];
+        $postenTotalen[$postData[$key]["post"]] = $postenTotalen[$postData[$key]["post"]] - $postData[$key]["bedrag"];
+        $jaarData[$currJaar] = $jaarData[$currJaar] - $postData[$key]["bedrag"];
+    }
 
-  //Array met unieke posten maken
-  if(!in_array($postData[$key]["post"], $postenUniek))
-    $postenUniek[] = $postData[$key]["post"];
-  
+    //Array met unieke posten maken
+    if(!in_array($postData[$key]["post"], $postenUniek)) {
+        $postenUniek[] = $postData[$key]["post"];
+    }
+
 }
 
 $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
@@ -100,14 +102,14 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
           </tr>
   <?php
           foreach ($jaarData as $key => $value) {
-            echo"<tr>
-                  <td>".$key."</td>
-                  <td>".$value."</td>
+              echo"<tr>
+                  <td>" . $key . "</td>
+                  <td>" . $value . "</td>
                 </tr>";
 
-                $totaal = $totaal + $value;
+              $totaal = $totaal + $value;
           }
-  ?>
+?>
         <tr>
           <td><strong>totaal</strong></td>
           <td><?php echo $totaal; ?></td>
@@ -120,12 +122,12 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
             <th>Config files</th>
           </tr>
   <?php
-          foreach ($configFiles as $key => $value) {
+        foreach ($configFiles as $key => $value) {
             echo"<tr>
-                    <td><a href='index.php?config=".$value."'>".substr($value, 0, -5)."</a> <a href='configs/".$value."'>[view json]</a></td>
+                    <td><a href='index.php?config=" . $value . "'>" . substr($value, 0, -5) . "</a> <a href='configs/" . $value . "'>[view json]</a></td>
                 </tr>";
-          }
-  ?>
+        }
+?>
 
         </table>
       </div>
@@ -146,38 +148,38 @@ $tableData[] = array("maand" => $currMaand, "posten" => $currPost);
     		<tr>
     			<th>maand</th>
     <?php
-    			foreach ($postenUniek as $puKey => $puValue) {
-    				echo"<th>".$postenUniek[$puKey]."</th>";
-    			}
-    ?>
+              foreach ($postenUniek as $puKey => $puValue) {
+                  echo"<th>" . $postenUniek[$puKey] . "</th>";
+              }
+?>
     		  <th>maand totaal</th>	
     	</tr>
     	<tr>
     		<th>totaal</th>
-    <?php    
-    			foreach ($postenTotalen as $ptKey => $ptValue) {
-    				echo"<th>".str_replace(".", ",", $postenTotalen[$ptKey])."</th>";
-    				$totaal = $totaal + $postenTotalen[$ptKey];
-    			}
-    ?>
+    <?php
+            foreach ($postenTotalen as $ptKey => $ptValue) {
+                echo"<th>" . str_replace(".", ",", $postenTotalen[$ptKey]) . "</th>";
+                $totaal = $totaal + $postenTotalen[$ptKey];
+            }
+?>
 
     		<th><?php str_replace(".", ",", $totaal) ?></th>
     	</tr>
 
     <?php
-      foreach ($tableData as $key => $value) {
-        echo"<tr>
-        	     <td>".$tableData[$key]["maand"]."</td>";
-        	unset($rowTotal);
-        	foreach ($postenUniek as $puKey => $puValue) {
-        		$rowTotal = $rowTotal + $tableData[$key]["posten"][$postenUniek[$puKey]];
-        		echo"<td>".str_replace(".", ",", $tableData[$key]["posten"][$postenUniek[$puKey]])."</td>";
-        	}
+  foreach ($tableData as $key => $value) {
+      echo"<tr>
+        	     <td>" . $tableData[$key]["maand"] . "</td>";
+      unset($rowTotal);
+      foreach ($postenUniek as $puKey => $puValue) {
+          $rowTotal = $rowTotal + $tableData[$key]["posten"][$postenUniek[$puKey]];
+          echo"<td>" . str_replace(".", ",", $tableData[$key]["posten"][$postenUniek[$puKey]]) . "</td>";
+      }
 
-        	echo"<td>".str_replace(".", ",", $rowTotal)."</td>
+      echo"<td>" . str_replace(".", ",", $rowTotal) . "</td>
           </tr>";
-    }
-    ?>
+  }
+?>
 
     </table>
    </div>
