@@ -1,4 +1,6 @@
 csv/
-configs/
+configs/*
+!configs/config.json
 .DS_Store
 vendor/
+composer.phar
